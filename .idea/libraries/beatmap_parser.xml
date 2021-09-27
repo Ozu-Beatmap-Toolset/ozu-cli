@@ -1,0 +1,9 @@
+<component name="libraryTable">
+  <library name="beatmap-parser">
+    <CLASSES>
+      <root url="file://$PROJECT_DIR$/../beatmap-parser/out/production/beatmap-parser" />
+    </CLASSES>
+    <JAVADOC />
+    <SOURCES />
+  </library>
+</component>
