@@ -1,3 +1,3 @@
-# Osu beatmap file parser
+# Ozu Cli
 
-A simple Osu! beatmap tool to snap unsnapped objects to the timing grid. 
+A cli app to help with beatmap creation.
