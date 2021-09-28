@@ -21,8 +21,11 @@ public class BeatMapGeneratorCommand {
         SUB_COMMANDS.get(args[1]).accept(args);
     }
 
+    public static String getCommandName() {
+        return "beatmap-generator";
+    }
+
     public static String smallDescription() {
         return "Generates beatmaps from soundfiles";
     }
-
 }

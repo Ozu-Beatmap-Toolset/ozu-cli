@@ -29,21 +29,29 @@ public class NoteSnapper {
     private static Optional<Integer> closestSnappedTime(BeatMap beatMap, List<Integer> enabledTimeDivisions, int time) {
         return enabledTimeDivisions.stream()
                 .map(timeDivision -> quantizedTime(beatMap, timeDivision, time))
+                .filter(Optional::isPresent)
+                .map(Optional::get)
                 .reduce(quantizedTimeComparision(time));
     }
 
-    // snaps the "time" variable to the closest valid time division
-    private static int quantizedTime(BeatMap beatMap, int division, int time) {
-        //final double beatLength = beatMap.findBeatLengthAt(time);
-        //final double smallestAllowedBeatLength = beatLength/division;
-        //final int offset = beatMap.findTimingOffsetAt(time);
+    // snaps the "time" variable to the closest valid time division, if there are any
+    private static Optional<Integer> quantizedTime(BeatMap beatMap, int division, int time) {
+        final Optional<Double> beatLengthOpt = beatMap.findBeatLengthAt(time);
+        final Optional<Integer> offsetOpt = beatMap.findTimingOffsetAt(time);
 
-        //final int quantizedReducedTime = (int) (((time - offset) / smallestAllowedBeatLength) + 0.5);
-        //return (int)(quantizedReducedTime * smallestAllowedBeatLength) + offset;
-        return 0;
+        return beatLengthOpt.map(beatLength -> offsetOpt.map(offset -> {
+            final double smallestAllowedBeatLength = beatLength/division;
+            final int timeDifference = time - offset;
+            final int quantizedReducedTime = (int) (((timeDifference) / smallestAllowedBeatLength) + singOf(timeDifference)*0.5);
+            return (int)(quantizedReducedTime * smallestAllowedBeatLength) + offset;
+        })).flatMap(integerOpt -> integerOpt);
     }
 
     private static BinaryOperator<Integer> quantizedTimeComparision(final int time) {
         return (time1, time2) -> Math.abs(time1 - time) < Math.abs(time2 - time) ? time1 : time2;
+    }
+
+    private static double singOf(int x) {
+        return x > 0 ? 1 : -1;
     }
 }

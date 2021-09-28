@@ -22,6 +22,10 @@ public class AnalyseCommand {
         SUB_COMMANDS.get(args[1]).accept(args);
     }
 
+    public static String getCommandName() {
+        return "analyse";
+    }
+
     public static String smallDescription() {
         return "Reports information about a beatmap in the console";
     }
