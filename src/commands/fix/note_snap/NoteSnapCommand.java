@@ -4,7 +4,6 @@ import commands.CliArgumentFinder;
 import commands.CommandHandler;
 import osu.beatmap.BeatMap;
 import osu.beatmap.parser.Parser;
-import tools.OsuConstants;
 import tools.timing_snapper.NoteSnapper;
 import util.data_structure.tupple.Tuple2;
 
