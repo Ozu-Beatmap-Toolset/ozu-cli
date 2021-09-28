@@ -12,8 +12,8 @@ public class FixCommand {
     public static final Map<String, Consumer<String[]>> SUB_COMMANDS = new HashMap<>();
     static {
         SUB_COMMANDS.put(NoteSnapCommand.getCommandName(), NoteSnapCommand::execute);
-        SUB_COMMANDS.put("green-line", null);
-        SUB_COMMANDS.put("song-timing", null);
+        SUB_COMMANDS.put("line-snap", null);
+        SUB_COMMANDS.put("bpm-sync", null);
     }
 
     public static void execute(String[] args) {

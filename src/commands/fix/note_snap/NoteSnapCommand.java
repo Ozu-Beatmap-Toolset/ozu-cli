@@ -3,13 +3,12 @@ package commands.fix.note_snap;
 import commands.CliArgumentFinder;
 import commands.CommandHandler;
 import osu.beatmap.BeatMap;
-import osu.beatmap.parser.Parser;
+import osu.beatmap.serialization.BeatMapParser;
 import tools.timing_snapper.NoteSnapper;
 import util.data_structure.tupple.Tuple2;
 
 import java.io.File;
 import java.util.*;
-import java.util.stream.Collectors;
 import java.util.stream.IntStream;
 
 public class NoteSnapCommand {
@@ -36,8 +35,11 @@ public class NoteSnapCommand {
                 });
 
         final File beatMapFile = new File(args[args.length - 1]);
-        final Optional<BeatMap> beatMapOpt = Parser.decode(beatMapFile);
-        beatMapOpt.ifPresent(beatMap -> NoteSnapper.execute(beatMap, enabledDivisions));
+        final Optional<BeatMap> beatMapOpt = BeatMapParser.decode(beatMapFile);
+        beatMapOpt.ifPresent(beatMap -> {
+            NoteSnapper.execute(beatMap, enabledDivisions, workInterval);
+            BeatMapParser.encode(beatMap, beatMapFile);
+        });
     }
 
     public static String getCommandName() {
