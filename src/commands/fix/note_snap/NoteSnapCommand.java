@@ -37,9 +37,7 @@ public class NoteSnapCommand {
 
         final File beatMapFile = new File(args[args.length - 1]);
         final Optional<BeatMap> beatMapOpt = Parser.decode(beatMapFile);
-        beatMapOpt.ifPresent(beatMap -> System.out.println(beatMap.hitObjects.hitSpinnerData.stream().map(hitSpinnerData -> hitSpinnerData.endTime).collect(Collectors.toList())));
         beatMapOpt.ifPresent(beatMap -> NoteSnapper.execute(beatMap, enabledDivisions));
-        beatMapOpt.ifPresent(beatMap -> System.out.println(beatMap.hitObjects.hitSpinnerData.stream().map(hitSpinnerData -> hitSpinnerData.endTime).collect(Collectors.toList())));
     }
 
     public static String getCommandName() {
