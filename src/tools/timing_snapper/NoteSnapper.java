@@ -32,36 +32,14 @@ public class NoteSnapper {
                 .filter(slider -> slider.time > workInterval.value1 && slider.time < workInterval.value2)
                 .forEach(slider -> closestSnappedTime(beatMap, enabledTimeDivisions, slider.time)
                         .ifPresent(quantizedTime -> slider.time = quantizedTime));
-        // plz debug this wtf am I doing
         beatMap.hitObjects.hitSliderData.stream()
-                .filter(slider -> {
-                    final double sliderDuration = sliderDuration(slider, beatMap);
-                    final double endTime = slider.time + sliderDuration;
-                    return endTime > workInterval.value1 && endTime < workInterval.value2;
-                })
+                .filter(slider -> slider.time > workInterval.value1 && slider.time < workInterval.value2)
                 .forEach(slider -> {
-                    final double sliderDuration = sliderDuration(slider, beatMap);
-                    final double endTime = slider.time + sliderDuration;
+                    final double sliderVelocity = beatMap.findSliderVelocityAt(slider.time);
+                    final double endTime = slider.time + slider.length/sliderVelocity;
                     closestSnappedTime(beatMap, enabledTimeDivisions, (int)endTime)
-                            .ifPresent(quantizedTime -> {
-                                final int newEndTime = quantizedTime;
-                                final double inheritedBeatLength = beatMap.findInheritedBeatLengthAt(slider.time).get();
-                                slider.length = sliderLengthFromNewDuration(newEndTime, beatMap.difficulty.sliderMultiplier, inheritedBeatLength);
-                            });
+                            .ifPresent(quantizedTime -> slider.length = (quantizedTime - slider.time) * sliderVelocity);
                 });
-    }
-
-    private static double sliderDuration(HitSliderData slider, BeatMap beatMap) {
-        final double sliderLength = slider.length;
-        final double sliderMultiplier = beatMap.difficulty.sliderMultiplier;
-        final double inheritedBeatLength = beatMap.findInheritedBeatLengthAt(slider.time).get();
-        final double lengthDivisor = sliderMultiplier * 100 * (-100/inheritedBeatLength);
-        return sliderLength / lengthDivisor;
-    }
-
-    private static double sliderLengthFromNewDuration(final double sliderDuration, final double sliderMultiplier, final double inheritedBeatLength) {
-        final double durationMultiplier = sliderMultiplier * 100 * (-100/inheritedBeatLength);
-        return sliderDuration * durationMultiplier;
     }
 
     private static void noteSnapCircles(final BeatMap beatMap, final List<Integer> enabledTimeDivisions, final Tuple2<Integer, Integer> workInterval) {
