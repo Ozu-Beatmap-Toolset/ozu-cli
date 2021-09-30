@@ -27,15 +27,18 @@ public class CommandHandler {
             userEnteredInvalidCommand(args);
         }
 
-        try {
-            COMMANDS.get(args[0]).accept(args);
-        }
-        catch (NullPointerException exception) {
-            HelpCommand.execute(args);
-        }
+        showHelpCommandIfNullOrGet(COMMANDS.get(args[0])).accept(args);
     }
 
     public static void userEnteredInvalidCommand(String[] args) {
         HelpCommand.printBriefCommandDescription(args);
+    }
+
+    public static Consumer<String[]> showHelpCommandIfNullOrGet(final Consumer<String[]> consumer) {
+        if(consumer == null) {
+            return strings -> userEnteredInvalidCommand(new String[]{});
+        }
+        
+        return consumer;
     }
 }

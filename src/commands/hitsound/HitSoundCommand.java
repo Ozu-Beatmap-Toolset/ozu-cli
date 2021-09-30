@@ -17,10 +17,10 @@ public class HitSoundCommand {
     public static void execute(String[] args) {
         if(args.length < 2) {
             CommandHandler.userEnteredInvalidCommand(args);
-            HelpCommand.execute(args);
+            return;
         }
 
-        SUB_COMMANDS.get(args[1]).accept(args);
+        CommandHandler.showHelpCommandIfNullOrGet(SUB_COMMANDS.get(args[1])).accept(args);
     }
 
     public static String getCommandName() {

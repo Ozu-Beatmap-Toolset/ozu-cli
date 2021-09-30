@@ -16,10 +16,11 @@ public class AnalyseCommand {
 
     public static void execute(String[] args) {
         if(args.length < 2) {
-            throw new IllegalArgumentException(CommandHandler.WRONG_COMMAND_SIZE_TYPE_HELP_MESSAGE);
+            CommandHandler.userEnteredInvalidCommand(args);
+            return;
         }
 
-        SUB_COMMANDS.get(args[1]).accept(args);
+        CommandHandler.showHelpCommandIfNullOrGet(SUB_COMMANDS.get(args[1])).accept(args);
     }
 
     public static String getCommandName() {

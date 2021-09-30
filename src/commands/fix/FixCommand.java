@@ -2,6 +2,7 @@ package commands.fix;
 
 import commands.CommandHandler;
 import commands.fix.note_snap.NoteSnapCommand;
+import commands.fix.bpm_sync.BpmCommand;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,15 +14,16 @@ public class FixCommand {
     static {
         SUB_COMMANDS.put(NoteSnapCommand.getCommandName(), NoteSnapCommand::execute);
         SUB_COMMANDS.put("line-snap", null);
-        SUB_COMMANDS.put("bpm-sync", null);
+        SUB_COMMANDS.put(BpmCommand.getCommandName(), BpmCommand::execute);
     }
 
     public static void execute(String[] args) {
         if(args.length < 2) {
-            throw new IllegalArgumentException(CommandHandler.WRONG_COMMAND_SIZE_TYPE_HELP_MESSAGE);
+            CommandHandler.userEnteredInvalidCommand(args);
+            return;
         }
 
-        SUB_COMMANDS.get(args[1]).accept(args);
+        CommandHandler.showHelpCommandIfNullOrGet(SUB_COMMANDS.get(args[1])).accept(args);
     }
 
     public static String getCommandName() {
