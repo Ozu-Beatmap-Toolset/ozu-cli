@@ -1,7 +1,7 @@
 package tools.bpm_offset_finder;
 
 import org.jtransforms.fft.DoubleFFT_1D;
-import osu.beatmap.BeatMap;
+import osu.beatmap.Beatmap;
 import tools.audiofile_converter.FfmpegCliAccess;
 import util.data_structure.tupple.Tuple2;
 
@@ -14,7 +14,7 @@ import java.util.Optional;
 
 public class BPMOFinder {
 
-    public static void execute(final BeatMap beatMap, final File mp3File) throws Exception {
+    public static void execute(final Beatmap beatmap, final File mp3File) throws Exception {
         System.out.println(mp3File.getAbsolutePath());
         final File wavFile = FfmpegCliAccess.convertAudioFileToWavFile(mp3File);
         final AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(wavFile);
@@ -26,10 +26,8 @@ public class BPMOFinder {
         bpmAndOffsetOpt.ifPresent(bpmAndOffset -> {
             final double beatLength = 60000/bpmAndOffset.value1;
             final int offset = (int)(bpmAndOffset.value1*beatLength/(Math.PI*2));
-            System.out.println(beatLength);
-            System.out.println(offset);
-            beatMap.timingPoints.redLineData.get(0).beatLength = beatLength;
-            beatMap.timingPoints.redLineData.get(0).time = offset;
+            beatmap.timingPoints.redLineData.get(0).beatLength = beatLength;
+            beatmap.timingPoints.redLineData.get(0).time = offset;
         });
     }
 
@@ -96,8 +94,6 @@ public class BPMOFinder {
             if(amplitudesSquared[i] > biggestAmplitudeYet) {
                 biggestAmplitudeYet = amplitudesSquared[i];
                 bestIndexSoFar = i;
-
-                System.out.println(amplitudesSquared[i] + " : " + (bestIndexSoFar * dftResolution)*60);
             }
         }
 

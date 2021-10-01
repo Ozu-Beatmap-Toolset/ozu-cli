@@ -1,13 +1,12 @@
 package commands.fix.bpm_sync;
 
 import commands.CommandHandler;
-import osu.beatmap.BeatMap;
-import osu.beatmap.serialization.BeatMapParser;
+import osu.beatmap.Beatmap;
+import osu.beatmap.serialization.BeatmapParser;
+import tools.beatmap_exporter.BeatmapExporter;
 import tools.bpm_offset_finder.BPMOFinder;
 
-import javax.sound.sampled.UnsupportedAudioFileException;
 import java.io.File;
-import java.io.IOException;
 import java.util.Arrays;
 import java.util.Optional;
 
@@ -16,13 +15,13 @@ public class BpmCommand {
 
     public static void execute(String[] args) {
         if(args.length < 3) {
-        CommandHandler.userEnteredInvalidCommand(args);
-        return;
+            CommandHandler.userEnteredInvalidCommand(args);
+            return;
         }
 
         final File beatmapFile = new File(args[args.length - 1]);
-        final Optional<BeatMap> beatMapOpt = BeatMapParser.decode(beatmapFile);
-        beatMapOpt.ifPresent(beatmap -> {
+        final Optional<Beatmap> beatmapOpt = BeatmapParser.decode(beatmapFile);
+        beatmapOpt.ifPresent(beatmap -> {
             final File beatmapFolder = beatmapFile.getParentFile();
             final String[] ls = beatmapFolder.list();
             final Optional<String> audioFilenameOpt = Arrays.stream(ls)
@@ -31,7 +30,9 @@ public class BpmCommand {
             audioFilenameOpt.ifPresent(audioFilename -> {
                 try {
                     BPMOFinder.execute(beatmap, new File(beatmapFolder.getAbsolutePath() + "\\" + audioFilename));
-                } catch (Exception ioException) {
+                    BeatmapExporter.export(beatmap, beatmapFile, args);
+                }
+                catch(Exception ioException) {
                     ioException.printStackTrace();
                 }
             });

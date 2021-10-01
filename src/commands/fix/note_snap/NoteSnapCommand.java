@@ -2,8 +2,9 @@ package commands.fix.note_snap;
 
 import commands.CliArgumentFinder;
 import commands.CommandHandler;
-import osu.beatmap.BeatMap;
-import osu.beatmap.serialization.BeatMapParser;
+import osu.beatmap.Beatmap;
+import osu.beatmap.serialization.BeatmapParser;
+import tools.beatmap_exporter.BeatmapExporter;
 import tools.timing_snapper.NoteSnapper;
 import util.data_structure.tupple.Tuple2;
 
@@ -34,11 +35,11 @@ public class NoteSnapCommand {
                     workInterval.value2 = Integer.parseInt(timeIntervalArgs.get(1));
                 });
 
-        final File beatMapFile = new File(args[args.length - 1]);
-        final Optional<BeatMap> beatMapOpt = BeatMapParser.decode(beatMapFile);
-        beatMapOpt.ifPresent(beatMap -> {
-            NoteSnapper.execute(beatMap, enabledDivisions, workInterval);
-            BeatMapParser.encode(beatMap, beatMapFile);
+        final File beatmapFile = new File(args[args.length - 1]);
+        final Optional<Beatmap> beatmapOpt = BeatmapParser.decode(beatmapFile);
+        beatmapOpt.ifPresent(beatmap -> {
+            NoteSnapper.execute(beatmap, enabledDivisions, workInterval);
+            BeatmapExporter.export(beatmap, beatmapFile, args);
         });
     }
 

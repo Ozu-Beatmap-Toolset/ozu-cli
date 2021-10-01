@@ -1,7 +1,7 @@
 package commands.help;
 
 import commands.analyse.AnalyseCommand;
-import commands.beatmap_generator.BeatMapGeneratorCommand;
+import commands.beatmap_generator.BeatmapGeneratorCommand;
 import commands.fix.FixCommand;
 import commands.hitsound.HitSoundCommand;
 
@@ -21,7 +21,7 @@ public class HelpCommand {
             "  fix                 " + FixCommand.smallDescription() + "\n" +
             "  analyze             " + AnalyseCommand.smallDescription() + "\n" +
             "  hitsound            " + HitSoundCommand.smallDescription() + "\n" +
-            "  beatmap-generator   " + BeatMapGeneratorCommand.smallDescription() + "\n";
+            "  beatmap-generator   " + BeatmapGeneratorCommand.smallDescription() + "\n";
 
     public static final String DETAILED_COMMAND_MESSAGE = "Use \"ozu help [command]\" for help with a specific command\n\n";
 

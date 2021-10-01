@@ -1,7 +1,7 @@
 package commands;
 
 import commands.analyse.AnalyseCommand;
-import commands.beatmap_generator.BeatMapGeneratorCommand;
+import commands.beatmap_generator.BeatmapGeneratorCommand;
 import commands.fix.FixCommand;
 import commands.help.HelpCommand;
 import commands.hitsound.HitSoundCommand;
@@ -19,7 +19,7 @@ public class CommandHandler {
         COMMANDS.put(FixCommand.getCommandName(), FixCommand::execute);
         COMMANDS.put(AnalyseCommand.getCommandName(), AnalyseCommand::execute);
         COMMANDS.put(HitSoundCommand.getCommandName(), HitSoundCommand::execute);
-        COMMANDS.put(BeatMapGeneratorCommand.getCommandName(), BeatMapGeneratorCommand::execute);
+        COMMANDS.put(BeatmapGeneratorCommand.getCommandName(), BeatmapGeneratorCommand::execute);
     }
 
     public static void executeWithProgramArguments(String[] args) {
