@@ -15,19 +15,6 @@ public class CliArgumentFinder {
         this.args = Arrays.asList(args);
     }
 
-    public Optional<String> findArgument(String commandName) {
-        final Optional<List<String>> argumentListOpt = findArguments(commandName, 1);
-        AtomicReference<Optional<String>> argumentOptRef = new AtomicReference<>(Optional.empty());
-
-        argumentListOpt.ifPresent(argumentList -> {
-            if (argumentList.size() > 0) {
-                argumentOptRef.set(Optional.of(argumentList.get(0)));
-            }
-        });
-
-        return argumentOptRef.get();
-    }
-
     public Optional<List<String>> findArguments(String commandName, int numberOfArguments) {
         final AtomicReference<Optional<List<String>>> arguments = new AtomicReference<>(Optional.empty());
 
