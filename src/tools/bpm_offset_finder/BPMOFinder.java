@@ -1,8 +1,9 @@
 package tools.bpm_offset_finder;
 
 import org.jtransforms.fft.DoubleFFT_1D;
+import org.jtransforms.fft.FloatFFT_1D;
 import osu.beatmap.Beatmap;
-import tools.audiofile_converter.FfmpegCliAccess;
+import tools.audiofile_converter.WinWavCliAccess;
 import util.data_structure.tupple.Tuple2;
 
 import javax.sound.sampled.AudioFormat;
@@ -15,79 +16,78 @@ import java.util.Optional;
 public class BPMOFinder {
 
     public static void execute(final Beatmap beatmap, final File mp3File) throws Exception {
-        System.out.println(mp3File.getAbsolutePath());
-        final File wavFile = FfmpegCliAccess.convertAudioFileToWavFile(mp3File);
+        System.out.println("Converting \"" + mp3File.getName() + "\" into .wav format...");
+        final File wavFile = WinWavCliAccess.convertAudioFileToWavFile(mp3File);
         final AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(wavFile);
         final AudioFormat audioFormat = audioInputStream.getFormat();
+        System.out.println("Done.");
+
+        System.out.println("\nReading audio data...");
         final byte[] audioData = audioInputStream.readAllBytes();
-        final double[] leftChannelBuffer = extractRightChannel(audioData, audioFormat);
-        final Optional<Tuple2<Double, Double>> bpmAndOffsetOpt = findBpmOfSoundBuffer(leftChannelBuffer, audioFormat);
+        final float[] rightChannelBuffer = extractRightChannel(audioData, audioFormat);
+        System.out.println("Done.");
+
+        System.out.println("\nComputing bpm...");
+        final Optional<Tuple2<Double, Double>> bpmAndOffsetOpt = findBpmOfSoundBuffer(rightChannelBuffer, audioFormat);
+        System.out.println("Done.");
 
         bpmAndOffsetOpt.ifPresent(bpmAndOffset -> {
             final double beatLength = 60000/bpmAndOffset.value1;
             final int offset = (int)(bpmAndOffset.value1*beatLength/(Math.PI*2));
+
+            System.out.println(beatLength);
             beatmap.timingPoints.redLineData.get(0).beatLength = beatLength;
             beatmap.timingPoints.redLineData.get(0).time = offset;
         });
     }
 
-    private static double[] extractLeftChannel(byte[] audioData, AudioFormat audioFormat) {
-        final int sampleSize = audioFormat.getFrameSize()/audioFormat.getChannels();
-        final int leftChannelLength = audioData.length/audioFormat.getFrameSize();
-        final double[] leftChannelData = new double[leftChannelLength];
-
-        for(int i = 0; i < leftChannelData.length; i++) {
-            leftChannelData[i] = 0;
-            for(int j = 0; j < sampleSize; j++) {
-                if(audioFormat.isBigEndian()) {
-                    final int audioByteIndex = i * sampleSize + j;
-                    leftChannelData[i] += audioData[audioByteIndex] << (j*8);
-                }
-                else {
-                    final int audioByteIndex = i * sampleSize + (sampleSize - j - 1);
-                    leftChannelData[i] += audioData[audioByteIndex] << (j*8);
-                }
-            }
-
-            leftChannelData[i] /= 1 << (sampleSize*8);
-        }
-
-        return leftChannelData;
-    }
-
-    private static double[] extractRightChannel(byte[] audioData, AudioFormat audioFormat) {
+    private static float[] extractRightChannel(byte[] audioData, AudioFormat audioFormat) {
         final int sampleSize = audioFormat.getFrameSize()/audioFormat.getChannels();
         final int rightChannelLength = audioData.length/audioFormat.getFrameSize();
-        final double[] rightChannelData = new double[rightChannelLength];
+        final float[] rightChannelData = new float[rightChannelLength];
 
         for(int i = 0; i < rightChannelData.length; i++) {
             rightChannelData[i] = 0;
             for(int j = 0; j < sampleSize; j++) {
                 if(audioFormat.isBigEndian()) {
-                    final int audioByteIndex = i * sampleSize + j + sampleSize;
-                    rightChannelData[i] += audioData[audioByteIndex] << (j*8);
+                    final int audioByteIndex = i * audioFormat.getFrameSize() + (sampleSize - j - 1) + sampleSize;
+                    if(j == 0) {
+                        rightChannelData[i] += audioData[audioByteIndex] << (j * 8);
+                    }
+                    else {
+                        rightChannelData[i] += asUnsignedByte(audioData[audioByteIndex]) << (j * 8);
+                    }
                 }
                 else {
-                    final int audioByteIndex = i * sampleSize + (sampleSize - j - 1) + sampleSize;
-                    rightChannelData[i] += audioData[audioByteIndex] << (j*8);
+                    final int audioByteIndex = i * audioFormat.getFrameSize() + j + sampleSize;
+                    if(j == sampleSize - 1) {
+                        rightChannelData[i] += audioData[audioByteIndex] << (j * 8);
+                    }
+                    else {
+                        rightChannelData[i] += asUnsignedByte(audioData[audioByteIndex]) << (j * 8);
+                    }
                 }
             }
 
-            rightChannelData[i] /= 1 << (sampleSize*8);
+            rightChannelData[i] = rightChannelData[i] / 32767;
         }
 
         return rightChannelData;
     }
 
-    private static Optional<Tuple2<Double, Double>> findBpmOfSoundBuffer(double[] a, final AudioFormat audioFormat) {
+    private static int asUnsignedByte(byte b) {
+        return b >= 0 ? ((int)b) : ((int)b) + 256;
+    }
+
+    private static Optional<Tuple2<Double, Double>> findBpmOfSoundBuffer(float[] a, final AudioFormat audioFormat) {
         final double dftResolution = audioFormat.getSampleRate() / a.length;
-        final double[] complexPairs = fftOf(a);
-        final double[] amplitudesSquared = computeAmplitudesSquaredFromComplexPairs(complexPairs);
+        final float[] complexPairs = fftOf(a);
+        final float[] amplitudesSquared = computeAmplitudesSquaredFromComplexPairs(complexPairs);
 
-        final int smallestFrequencyIndex = (int)(1.0/dftResolution);
-        final int biggestFrequencyIndex = (int)(5.0/dftResolution);
+        final int smallestFrequencyIndex = (int)(1/dftResolution);
+        final int biggestFrequencyIndex = (int)(1000/dftResolution);
 
-        double biggestAmplitudeYet = 0;
+        float biggestAmplitudeYet = 0;
         int bestIndexSoFar = -1;
 
         for(int i = smallestFrequencyIndex; i < biggestFrequencyIndex; i++) {
@@ -106,18 +106,18 @@ public class BPMOFinder {
         return Optional.of(new Tuple2<>(bestIndexSoFar * dftResolution * 60, phase));
     }
 
-    private static double[] fftOf(double[] a) {
-        DoubleFFT_1D fftFunc = new DoubleFFT_1D(a.length);
-        double[] complexPairs = Arrays.copyOf(a, a.length*2);
+    private static float[] fftOf(float[] a) {
+        FloatFFT_1D fftFunc = new FloatFFT_1D(a.length);
+        float[] complexPairs = Arrays.copyOf(a, a.length*2);
         fftFunc.realForwardFull(complexPairs);
         return complexPairs;
     }
 
-    private static double[] computeAmplitudesSquaredFromComplexPairs(double[] complexPairs) {
-        double[] amplitudesSquared = new double[complexPairs.length/2];
+    private static float[] computeAmplitudesSquaredFromComplexPairs(float[] complexPairs) {
+        float[] amplitudesSquared = new float[complexPairs.length/2];
 
         for(int i = 0; i < amplitudesSquared.length; i++) {
-            amplitudesSquared[i] = complexPairs[i] * complexPairs[i] + complexPairs[i+1] * complexPairs[i+1];
+            amplitudesSquared[i] = complexPairs[i*2] * complexPairs[i*2] + complexPairs[i*2+1] * complexPairs[i*2+1];
         }
 
         return amplitudesSquared;

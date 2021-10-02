@@ -19,6 +19,5 @@ public class BeatmapExporter {
                 argumentFinder.findArguments("-i", 0)
                         .map(emptyList -> beatmapFile)
                         .orElse(osuFileLocation.get()));
-
     }
 }

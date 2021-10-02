@@ -29,7 +29,7 @@ public class BpmCommand {
                     .findFirst();
             audioFilenameOpt.ifPresent(audioFilename -> {
                 try {
-                    BPMOFinder.execute(beatmap, new File(beatmapFolder.getAbsolutePath() + "\\" + audioFilename));
+                    BPMOFinder.execute(beatmap, new File(beatmapFolder.getAbsolutePath() + "\\" + "A 440.wav"));
                     BeatmapExporter.export(beatmap, beatmapFile, args);
                 }
                 catch(Exception ioException) {
