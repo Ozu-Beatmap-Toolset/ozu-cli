@@ -2,7 +2,7 @@ package commands.fix;
 
 import commands.CommandHandler;
 import commands.fix.note_snap.NoteSnapCommand;
-import commands.fix.bpm_sync.BpmCommand;
+import commands.fix.bpm_sync.BpmSyncCommand;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -14,7 +14,7 @@ public class FixCommand {
     static {
         SUB_COMMANDS.put(NoteSnapCommand.getCommandName(), NoteSnapCommand::execute);
         SUB_COMMANDS.put("line-snap", null);
-        SUB_COMMANDS.put(BpmCommand.getCommandName(), BpmCommand::execute);
+        SUB_COMMANDS.put(BpmSyncCommand.getCommandName(), BpmSyncCommand::execute);
     }
 
     public static void execute(String[] args) {

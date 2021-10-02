@@ -11,8 +11,6 @@ import java.util.function.Consumer;
 
 public class CommandHandler {
 
-    public static final String WRONG_COMMAND_SIZE_TYPE_HELP_MESSAGE = "Type command \"ozu help\" to see the list of commands.";
-
     public static final Map<String, Consumer<String[]>> COMMANDS = new HashMap<>();
     static {
         COMMANDS.put(HelpCommand.getCommandName(), HelpCommand::execute);

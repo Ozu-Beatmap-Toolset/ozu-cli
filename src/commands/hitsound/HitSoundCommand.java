@@ -31,4 +31,8 @@ public class HitSoundCommand {
         return "Tool to mess with hitsounds";
     }
 
+    public static String detailedDescription() {
+        return "";
+    }
+
 }

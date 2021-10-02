@@ -1,5 +1,6 @@
 package tools.timing_snapper;
 
+import global_parameters.GlobalCliParameters;
 import osu.beatmap.Beatmap;
 import util.data_structure.tupple.Tuple2;
 
@@ -10,20 +11,20 @@ import java.util.function.BinaryOperator;
 
 public class NoteSnapper {
 
-    public static void execute(final Beatmap beatmap, final List<Integer> enabledTimeDivisions, final Tuple2<Integer, Integer> workInterval) {
-        final int amountOfFixedCircles = noteSnapCircles(beatmap, enabledTimeDivisions, workInterval);
-        final Tuple2<Integer, Integer> amountsOfFixedSliders = noteSnapSliders(beatmap, enabledTimeDivisions, workInterval);
-        final Tuple2<Integer, Integer> amountsOfFixedSpinners = noteSnapSpinners(beatmap, enabledTimeDivisions, workInterval);
+    public static void execute(final Beatmap beatmap, final GlobalCliParameters globalParameters) {
+        final int amountOfFixedCircles = noteSnapCircles(beatmap, globalParameters);
+        final Tuple2<Integer, Integer> amountsOfFixedSliders = noteSnapSliders(beatmap, globalParameters);
+        final Tuple2<Integer, Integer> amountsOfFixedSpinners = noteSnapSpinners(beatmap, globalParameters);
 
         displayAmountsOfFixedObject(amountOfFixedCircles, amountsOfFixedSliders, amountsOfFixedSpinners);
     }
 
-    private static int noteSnapCircles(final Beatmap beatmap, final List<Integer> enabledTimeDivisions, final Tuple2<Integer, Integer> workInterval) {
+    private static int noteSnapCircles(final Beatmap beatmap, final GlobalCliParameters globalParameters) {
         final AtomicInteger fixedCircleCounter = new AtomicInteger(0);
 
         beatmap.hitObjects.hitCircleData.stream()
-                .filter(circle -> circle.time > workInterval.value1 && circle.time < workInterval.value2)
-                .forEach(circle -> closestSnappedTime(beatmap, enabledTimeDivisions, circle.time)
+                .filter(circle -> globalParameters.timeIntervalContains(circle.time))
+                .forEach(circle -> closestSnappedTime(beatmap, globalParameters.getBeatDivisors(), circle.time)
                         .ifPresent(quantizedTime -> {
                             final int previousCircleTime = circle.time;
                             circle.time = quantizedTime;
@@ -33,24 +34,25 @@ public class NoteSnapper {
         return fixedCircleCounter.get();
     }
 
-    private static Tuple2<Integer, Integer> noteSnapSliders(final Beatmap beatmap, final List<Integer> enabledTimeDivisions, final Tuple2<Integer, Integer> workInterval) {
+    private static Tuple2<Integer, Integer> noteSnapSliders(final Beatmap beatmap,
+                                                            final GlobalCliParameters globalParameters) {
         final AtomicInteger fixedSliderHeadCounter = new AtomicInteger(0);
         final AtomicInteger fixedSliderTailCounter = new AtomicInteger(0);
 
         beatmap.hitObjects.hitSliderData.stream()
-                .filter(slider -> slider.time > workInterval.value1 && slider.time < workInterval.value2)
-                .forEach(slider -> closestSnappedTime(beatmap, enabledTimeDivisions, slider.time)
+                .filter(slider -> globalParameters.timeIntervalContains(slider.time))
+                .forEach(slider -> closestSnappedTime(beatmap, globalParameters.getBeatDivisors(), slider.time)
                         .ifPresent(quantizedTime -> {
                             final int previousSliderTime = slider.time;
                             slider.time = quantizedTime;
                             if(previousSliderTime != slider.time) fixedSliderHeadCounter.incrementAndGet();
                         }));
         beatmap.hitObjects.hitSliderData.stream()
-                .filter(slider -> slider.time > workInterval.value1 && slider.time < workInterval.value2)
+                .filter(slider -> globalParameters.timeIntervalContains(slider.time))
                 .forEach(slider -> {
                     final double sliderVelocity = beatmap.findSliderVelocityAt(slider.time);
                     final double endTime = slider.time + slider.length/sliderVelocity;
-                    closestSnappedTime(beatmap, enabledTimeDivisions, (int)endTime)
+                    closestSnappedTime(beatmap, globalParameters.getBeatDivisors(), (int)endTime)
                             .ifPresent(quantizedTime -> {
                                 final double previousSliderLength = slider.length;
                                 slider.length = (quantizedTime - slider.time) * sliderVelocity;
@@ -61,21 +63,22 @@ public class NoteSnapper {
         return new Tuple2<>(fixedSliderHeadCounter.get(), fixedSliderTailCounter.get());
     }
 
-    private static Tuple2<Integer, Integer> noteSnapSpinners(final Beatmap beatmap, final List<Integer> enabledTimeDivisions, final Tuple2<Integer, Integer> workInterval) {
+    private static Tuple2<Integer, Integer> noteSnapSpinners(final Beatmap beatmap,
+                                                             final GlobalCliParameters globalParameters) {
         final AtomicInteger fixedSpinnerHeadCounter = new AtomicInteger(0);
         final AtomicInteger fixedSpinnerTailCounter = new AtomicInteger(0);
 
         beatmap.hitObjects.hitSpinnerData.stream()
-                .filter(spinner -> spinner.time > workInterval.value1 && spinner.time < workInterval.value2)
-                .forEach(spinner -> closestSnappedTime(beatmap, enabledTimeDivisions, spinner.time)
+                .filter(spinner -> globalParameters.timeIntervalContains(spinner.time))
+                .forEach(spinner -> closestSnappedTime(beatmap, globalParameters.getBeatDivisors(), spinner.time)
                         .ifPresent(quantizedTime -> {
                             final double previousSpinnerTime = spinner.time;
                             spinner.time = quantizedTime;
                             if(previousSpinnerTime != spinner.time) fixedSpinnerHeadCounter.incrementAndGet();
                         }));
         beatmap.hitObjects.hitSpinnerData.stream()
-                .filter(spinner -> spinner.endTime > workInterval.value1 && spinner.endTime < workInterval.value2)
-                .forEach(spinner -> closestSnappedTime(beatmap, enabledTimeDivisions, spinner.endTime)
+                .filter(spinner -> globalParameters.timeIntervalContains(spinner.endTime))
+                .forEach(spinner -> closestSnappedTime(beatmap, globalParameters.getBeatDivisors(), spinner.endTime)
                         .ifPresent(quantizedTime -> {
                             final double previousSpinnerEndTime = spinner.endTime;
                             spinner.endTime = quantizedTime;

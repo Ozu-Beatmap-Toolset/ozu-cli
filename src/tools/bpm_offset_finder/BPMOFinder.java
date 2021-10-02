@@ -3,6 +3,8 @@ package tools.bpm_offset_finder;
 import org.jtransforms.fft.FloatFFT_1D;
 import osu.beatmap.Beatmap;
 import tools.audiofile_converter.WinWavCliAccess;
+import tools.wav_file_untangler.ChannelType;
+import tools.wav_file_untangler.WavFileUntangler;
 import util.data_structure.tupple.Tuple2;
 
 import javax.sound.sampled.AudioFormat;
@@ -23,7 +25,7 @@ public class BPMOFinder {
 
         System.out.println("\nReading audio data...");
         final byte[] audioData = audioInputStream.readAllBytes();
-        final float[] rightChannelBuffer = extractRightChannel(audioData, audioFormat);
+        final float[] rightChannelBuffer = WavFileUntangler.extractChannel(ChannelType.MONO, audioData, audioFormat);
         System.out.println("Done.");
 
         System.out.println("\nComputing bpm...");
@@ -39,44 +41,6 @@ public class BPMOFinder {
             beatmap.timingPoints.redLineData.get(0).beatLength = beatLength;
             beatmap.timingPoints.redLineData.get(0).time = offset;
         });
-    }
-
-    private static float[] extractRightChannel(byte[] audioData, AudioFormat audioFormat) {
-        final int sampleSize = audioFormat.getFrameSize()/audioFormat.getChannels();
-        final int rightChannelLength = audioData.length/audioFormat.getFrameSize();
-        final float[] rightChannelData = new float[rightChannelLength];
-
-        for(int i = 0; i < rightChannelData.length; i++) {
-            rightChannelData[i] = 0;
-            for(int j = 0; j < sampleSize; j++) {
-                if(audioFormat.isBigEndian()) {
-                    final int audioByteIndex = i * audioFormat.getFrameSize() + (sampleSize - j - 1) + sampleSize;
-                    if(j == 0) {
-                        rightChannelData[i] += audioData[audioByteIndex] << (j * 8);
-                    }
-                    else {
-                        rightChannelData[i] += asUnsignedByte(audioData[audioByteIndex]) << (j * 8);
-                    }
-                }
-                else {
-                    final int audioByteIndex = i * audioFormat.getFrameSize() + j + sampleSize;
-                    if(j == sampleSize - 1) {
-                        rightChannelData[i] += audioData[audioByteIndex] << (j * 8);
-                    }
-                    else {
-                        rightChannelData[i] += asUnsignedByte(audioData[audioByteIndex]) << (j * 8);
-                    }
-                }
-            }
-
-            rightChannelData[i] /= ((1 << (sampleSize * 8 - 1)) - 1);
-        }
-
-        return rightChannelData;
-    }
-
-    private static int asUnsignedByte(byte b) {
-        return b >= 0 ? ((int)b) : ((int)b) + 256;
     }
 
     private static Optional<Tuple2<Double, Double>> findBpmOfSoundBuffer(float[] a, final AudioFormat audioFormat) {

@@ -29,4 +29,8 @@ public class BeatmapGeneratorCommand {
     public static String smallDescription() {
         return "Generates beatmaps from soundfiles";
     }
+
+    public static String detailedDescription() {
+        return "";
+    }
 }

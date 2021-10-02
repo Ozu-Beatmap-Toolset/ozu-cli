@@ -30,4 +30,8 @@ public class AnalyseCommand {
     public static String smallDescription() {
         return "Reports information about a beatmap in the console";
     }
+
+    public static String detailedDescription() {
+        return "";
+    }
 }
