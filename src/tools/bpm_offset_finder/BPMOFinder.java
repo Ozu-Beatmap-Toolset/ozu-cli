@@ -1,6 +1,5 @@
 package tools.bpm_offset_finder;
 
-import org.jtransforms.fft.DoubleFFT_1D;
 import org.jtransforms.fft.FloatFFT_1D;
 import osu.beatmap.Beatmap;
 import tools.audiofile_converter.WinWavCliAccess;
@@ -33,9 +32,10 @@ public class BPMOFinder {
 
         bpmAndOffsetOpt.ifPresent(bpmAndOffset -> {
             final double beatLength = 60000/bpmAndOffset.value1;
-            final int offset = (int)(bpmAndOffset.value1*beatLength/(Math.PI*2));
+            final int offset = (int)(bpmAndOffset.value2*beatLength/(Math.PI*2));
 
             System.out.println(beatLength);
+            System.out.println(offset);
             beatmap.timingPoints.redLineData.get(0).beatLength = beatLength;
             beatmap.timingPoints.redLineData.get(0).time = offset;
         });
@@ -69,7 +69,7 @@ public class BPMOFinder {
                 }
             }
 
-            rightChannelData[i] = rightChannelData[i] / 32767;
+            rightChannelData[i] /= ((1 << (sampleSize * 8 - 1)) - 1);
         }
 
         return rightChannelData;
@@ -85,12 +85,12 @@ public class BPMOFinder {
         final float[] amplitudesSquared = computeAmplitudesSquaredFromComplexPairs(complexPairs);
 
         final int smallestFrequencyIndex = (int)(1/dftResolution);
-        final int biggestFrequencyIndex = (int)(1000/dftResolution);
+        final int biggestFrequencyIndex = (int)(5/dftResolution);
 
         float biggestAmplitudeYet = 0;
         int bestIndexSoFar = -1;
 
-        for(int i = smallestFrequencyIndex; i < biggestFrequencyIndex; i++) {
+        for(int i = biggestFrequencyIndex; i >= smallestFrequencyIndex; i--) {
             if(amplitudesSquared[i] > biggestAmplitudeYet) {
                 biggestAmplitudeYet = amplitudesSquared[i];
                 bestIndexSoFar = i;
@@ -103,7 +103,7 @@ public class BPMOFinder {
 
         final double phase = Math.atan2(complexPairs[bestIndexSoFar*2 + 1], complexPairs[bestIndexSoFar*2]);
 
-        return Optional.of(new Tuple2<>(bestIndexSoFar * dftResolution * 60, phase));
+        return Optional.of(new Tuple2<>(bestIndexSoFar * dftResolution * 60, phase >= 0 ? phase : 2*Math.PI + phase));
     }
 
     private static float[] fftOf(float[] a) {
