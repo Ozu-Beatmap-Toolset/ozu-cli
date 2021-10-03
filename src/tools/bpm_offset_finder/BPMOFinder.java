@@ -2,7 +2,8 @@ package tools.bpm_offset_finder;
 
 import org.jtransforms.fft.FloatFFT_1D;
 import osu.beatmap.Beatmap;
-import tools.audiofile_converter.WinWavCliAccess;
+import tools.audio_file_converter.AudioFileConverter;
+import tools.audio_file_converter.AudioFileType;
 import tools.wav_file_untangler.ChannelType;
 import tools.wav_file_untangler.WavFileUntangler;
 import util.data_structure.tupple.Tuple2;
@@ -18,14 +19,14 @@ public class BPMOFinder {
 
     public static void execute(final Beatmap beatmap, final File mp3File) throws Exception {
         System.out.println("Converting \"" + mp3File.getName() + "\" into .wav format...");
-        final File wavFile = WinWavCliAccess.convertAudioFileToWavFile(mp3File);
+        final File wavFile = AudioFileConverter.convert(mp3File, new File("src\\cache"), AudioFileType.WAVE);
         final AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(wavFile);
         final AudioFormat audioFormat = audioInputStream.getFormat();
         System.out.println("Done.");
 
         System.out.println("\nReading audio data...");
         final byte[] audioData = audioInputStream.readAllBytes();
-        final float[] rightChannelBuffer = WavFileUntangler.extractChannel(ChannelType.MONO, audioData, audioFormat);
+        final float[] rightChannelBuffer = WavFileUntangler.extractChannel(ChannelType.RIGHT, audioData, audioFormat);
         System.out.println("Done.");
 
         System.out.println("\nComputing bpm...");
@@ -36,8 +37,6 @@ public class BPMOFinder {
             final double beatLength = 60000/bpmAndOffset.value1;
             final int offset = (int)(bpmAndOffset.value2*beatLength/(Math.PI*2));
 
-            System.out.println(beatLength);
-            System.out.println(offset);
             beatmap.timingPoints.redLineData.get(0).beatLength = beatLength;
             beatmap.timingPoints.redLineData.get(0).time = offset;
         });
