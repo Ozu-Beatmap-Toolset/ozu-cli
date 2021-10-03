@@ -2,6 +2,7 @@ package global_parameters;
 
 import commands.CliArgumentFinder;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -29,9 +30,10 @@ public class GlobalParametersBuilder {
         IntStream.range(1, 17).forEach(i -> argumentFinder
                 .findArguments("-d" + i, 0)
                 .ifPresent(emptyList -> beatDivisorList.add(i)));
-
         final Optional<BeatDivisors> beatDivisorsParameter = Optional.of(new BeatDivisors(beatDivisorList));
 
-        return new GlobalCliParameters(exportInPlaceParameter, timeIntervalParameter, beatDivisorsParameter);
+        final Optional<File> beatmapFile = Optional.of(new File(args[args.length - 1]));
+
+        return new GlobalCliParameters(exportInPlaceParameter, timeIntervalParameter, beatDivisorsParameter, beatmapFile);
     }
 }

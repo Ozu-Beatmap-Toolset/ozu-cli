@@ -1,8 +1,10 @@
 package commands.fix;
 
 import commands.CommandHandler;
+import commands.fix.green_line_snap.GreenLineSnapCommand;
 import commands.fix.note_snap.NoteSnapCommand;
 import commands.fix.bpm_sync.BpmSyncCommand;
+import tools.timing_snapper.GreenLineSnapper;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -13,7 +15,7 @@ public class FixCommand {
     public static final Map<String, Consumer<String[]>> SUB_COMMANDS = new HashMap<>();
     static {
         SUB_COMMANDS.put(NoteSnapCommand.getCommandName(), NoteSnapCommand::execute);
-        SUB_COMMANDS.put("line-snap", null);
+        SUB_COMMANDS.put(GreenLineSnapCommand.getCommandName(), GreenLineSnapCommand::execute);
         SUB_COMMANDS.put(BpmSyncCommand.getCommandName(), BpmSyncCommand::execute);
     }
 

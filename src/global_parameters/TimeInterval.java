@@ -13,4 +13,12 @@ public class TimeInterval {
     public boolean contains(final int time) {
         return values.value1 <= time && values.value2 >= time;
     }
+
+    public int min() {
+        return values.value1;
+    }
+
+    public int max() {
+        return values.value2;
+    }
 }

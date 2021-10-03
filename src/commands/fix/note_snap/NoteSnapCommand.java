@@ -19,13 +19,13 @@ public class NoteSnapCommand {
             return;
         }
 
-        final GlobalCliParameters globalCliParameters = GlobalParametersBuilder.build(args);
+        final GlobalCliParameters globalParameters = GlobalParametersBuilder.build(args);
 
         final File beatmapFile = new File(args[args.length - 1]);
         final Optional<Beatmap> beatmapOpt = BeatmapParser.decode(beatmapFile);
         beatmapOpt.ifPresent(beatmap -> {
-            NoteSnapper.execute(beatmap, globalCliParameters);
-            BeatmapExporter.export(beatmap, beatmapFile, globalCliParameters);
+            NoteSnapper.execute(beatmap, globalParameters);
+            BeatmapExporter.export(beatmap, globalParameters);
         });
     }
 

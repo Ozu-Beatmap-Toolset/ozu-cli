@@ -10,13 +10,22 @@ import java.util.function.Supplier;
 
 public class BeatmapExporter {
 
-    public static void export(final Beatmap beatmap, final File beatmapFile, final GlobalCliParameters globalParameters) {
+    public static void export(final Beatmap beatmap, final GlobalCliParameters globalParameters) {
         final Supplier<File> osuFileLocation = () -> {
             if(globalParameters.isExportingInPlace()) {
-                return new File(beatmapFile.getAbsolutePath() + "_" + System.currentTimeMillis() + ".osu");
+                return globalParameters.getBeatmapFile();
             }
-            return beatmapFile;
+            final StringBuilder stringBuilder = new StringBuilder();
+            final File beatmapFile = globalParameters.getBeatmapFile();
+
+            stringBuilder.append(beatmapFile.getAbsolutePath());
+            stringBuilder.append("_");
+            stringBuilder.append(System.currentTimeMillis());
+            stringBuilder.append(".osu");
+
+            return new File(stringBuilder.toString());
         };
+
         BeatmapParser.encode(beatmap, osuFileLocation.get());
     }
 }

@@ -23,7 +23,7 @@ public class BpmSyncCommand {
 
         final GlobalCliParameters globalParameters = GlobalParametersBuilder.build(args);
 
-        final File beatmapFile = new File(args[args.length - 1]);
+        final File beatmapFile = globalParameters.getBeatmapFile();
         final Optional<Beatmap> beatmapOpt = BeatmapParser.decode(beatmapFile);
         beatmapOpt.ifPresent(beatmap -> {
             final File beatmapFolder = beatmapFile.getParentFile();
@@ -34,7 +34,7 @@ public class BpmSyncCommand {
             audioFilenameOpt.ifPresent(audioFilename -> {
                 try {
                     BPMOFinder.execute(beatmap, new File(beatmapFolder.getAbsolutePath() + "\\" + audioFilename));
-                    BeatmapExporter.export(beatmap, beatmapFile, globalParameters);
+                    BeatmapExporter.export(beatmap, globalParameters);
                 }
                 catch(Exception ioException) {
                     ioException.printStackTrace();
@@ -42,7 +42,6 @@ public class BpmSyncCommand {
             });
         });
     }
-
 
     public static String getCommandName() {
         return "bpm-sync";
