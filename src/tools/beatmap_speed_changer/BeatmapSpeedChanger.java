@@ -5,6 +5,7 @@ import tools.audio_file_converter.AudioFileSpeedChanger;
 import tools.audio_file_converter.AudioFileType;
 
 import java.io.File;
+import java.util.stream.Collectors;
 
 public class BeatmapSpeedChanger {
 
@@ -18,6 +19,7 @@ public class BeatmapSpeedChanger {
         TimingPointTimelineScaler.scale(beatmap.timingPoints, speedMultiplier);
         HitObjectTimelineScaler.scale(beatmap.hitObjects, speedMultiplier);
         scaleHeaderData(beatmap, speedMultiplier);
+        scaleEventData(beatmap, speedMultiplier);
         System.out.println("Done.\n");
     }
 
@@ -31,6 +33,19 @@ public class BeatmapSpeedChanger {
         // using the mean between the conversion of the approach rate and the initial value
         beatmap.difficulty.hpDrainRate = ((int)(((getScaledApproachRate(beatmap.difficulty.hpDrainRate, speedMultiplier)
                 + beatmap.difficulty.hpDrainRate)/2)*10))/10.0;
+    }
+
+    private static void scaleEventData(Beatmap beatmap, double speedMultiplier) {
+        beatmap.events.backgroundData.forEach(backgroundData -> {
+            backgroundData.startTime /= speedMultiplier;
+        });
+        beatmap.events.videoData.forEach(videoData -> {
+            videoData.startTime /= speedMultiplier;
+        });
+        beatmap.events.breakData.forEach(breakData -> {
+            breakData.startTime /= speedMultiplier;
+            breakData.endTime   /= speedMultiplier;
+        });
     }
 
     private static double getScaledApproachRate(final double approachRate, double speedMultiplier) {
