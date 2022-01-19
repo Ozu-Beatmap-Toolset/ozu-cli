@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="generic-utils">
-    <CLASSES>
-      <root url="file://$PROJECT_DIR$/../../generic-utils/out/production/generic-utils" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>
