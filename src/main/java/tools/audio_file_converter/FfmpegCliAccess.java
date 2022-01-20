@@ -1,7 +1,6 @@
 package tools.audio_file_converter;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
 
 public class FfmpegCliAccess {
 
@@ -10,7 +9,11 @@ public class FfmpegCliAccess {
         try {
             final ProcessBuilder builder = new ProcessBuilder(ffmpegCommandArgs);
             final Process p = builder.start();
-            p.waitFor(4, TimeUnit.SECONDS);
+            p.getInputStream().close();
+            p.getErrorStream().close();
+            p.getOutputStream().close();
+            p.waitFor();
+            p.destroy();
         }
         catch (IOException | InterruptedException ioException) {
             ioException.printStackTrace();

@@ -7,6 +7,7 @@ import tools.audio_file_converter.AudioFileType;
 import tools.wav_file_untangler.ChannelType;
 import tools.wav_file_untangler.WavFileUntangler;
 import util.data_structure.tupple.Tuple2;
+import util.file.IOFile;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -18,25 +19,29 @@ import java.util.Optional;
 public class BPMOFinder {
 
     public static void execute(final Beatmap beatmap, final File mp3File) throws Exception {
-        System.out.println("Converting \"" + mp3File.getName() + "\" into .wav format...");
-        final File wavFile = AudioFileConverter.convert(mp3File, new File("src\\main\\java\\cache"), AudioFileType.WAVE);
+        System.out.print("Cleaning up filesystem... ");
+        new File("cache\\audio.wav").delete();
+        System.out.println("Done.");
+
+        System.out.print("Converting \"" + mp3File.getName() + "\" into .wav format... ");
+        final File wavFile = AudioFileConverter.convert(mp3File, new File("cache"), AudioFileType.WAVE);
         final AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(wavFile);
         final AudioFormat audioFormat = audioInputStream.getFormat();
         System.out.println("Done.");
 
-        System.out.println("\nReading audio data...");
+        System.out.print("Reading audio data... ");
         final byte[] audioData = audioInputStream.readAllBytes();
         final float[] rightChannelBuffer = WavFileUntangler.extractChannel(ChannelType.RIGHT, audioData, audioFormat);
         System.out.println("Done.");
 
-        System.out.println("\nComputing bpm...");
+        System.out.print("Computing bpm... ");
         final Optional<Tuple2<Double, Double>> bpmAndOffsetOpt = findBpmOfSoundBuffer(rightChannelBuffer, audioFormat);
         System.out.println("Done.");
 
         bpmAndOffsetOpt.ifPresent(bpmAndOffset -> {
             final double beatLength = 60000/bpmAndOffset.value1;
             final int offset = (int)(bpmAndOffset.value2*beatLength/(Math.PI*2));
-            System.out.println(bpmAndOffset.value1);
+            System.out.println("\nBpm is: " + bpmAndOffset.value1);
 
             beatmap.timingPoints.redLineData.get(0).beatLength = beatLength;
             beatmap.timingPoints.redLineData.get(0).time = offset;
@@ -47,8 +52,6 @@ public class BPMOFinder {
         final double dftResolution = audioFormat.getSampleRate() / a.length;
         final float[] complexPairs = fftOf(a);
         final float[] amplitudesSquared = computeAmplitudesSquaredFromComplexPairs(complexPairs);
-
-        //System.out.println(dftResolution);
 
         final int smallestFrequencyIndex = (int)(1/dftResolution);
         final int biggestFrequencyIndex = (int)(5/dftResolution);

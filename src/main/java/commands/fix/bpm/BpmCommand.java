@@ -25,7 +25,7 @@ public class BpmCommand {
         final GlobalCliParameters globalParameters = GlobalParametersBuilder.build(args);
 
         final File beatmapFile = globalParameters.getBeatmapFile();
-        final Optional<Beatmap> beatmapOpt = BeatmapParser.decode(beatmapFile);
+        final Optional<Beatmap> beatmapOpt = BeatmapParser.decode(IOFile.fileToInputStream(beatmapFile).get());
         beatmapOpt.ifPresent(beatmap -> {
             final File beatmapFolder = beatmapFile.getParentFile();
             final String[] ls = beatmapFolder.list();
@@ -42,6 +42,9 @@ public class BpmCommand {
                 }
             });
         });
+
+        // make sure the program dies
+        System.exit(0);
     }
 
     public static String getCommandName() {

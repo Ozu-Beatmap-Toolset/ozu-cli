@@ -1,6 +1,5 @@
 package tools.beatmap_exporter;
 
-import commands.CliArgumentFinder;
 import global_parameters.GlobalCliParameters;
 import osu.beatmap.Beatmap;
 import osu.beatmap.serialization.BeatmapParser;

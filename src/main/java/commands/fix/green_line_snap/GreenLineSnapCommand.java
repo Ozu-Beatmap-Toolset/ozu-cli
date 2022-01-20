@@ -7,6 +7,8 @@ import osu.beatmap.Beatmap;
 import osu.beatmap.serialization.BeatmapParser;
 import tools.beatmap_exporter.BeatmapExporter;
 import tools.timing_snapper.GreenLineSnapper;
+import util.file.IOFile;
+
 import java.util.Optional;
 
 public class GreenLineSnapCommand {
@@ -19,7 +21,7 @@ public class GreenLineSnapCommand {
 
         final GlobalCliParameters globalCliParameters = GlobalParametersBuilder.build(args);
 
-        final Optional<Beatmap> beatmapOpt = BeatmapParser.decode(globalCliParameters.getBeatmapFile());
+        final Optional<Beatmap> beatmapOpt = BeatmapParser.decode(IOFile.fileToInputStream(globalCliParameters.getBeatmapFile()).get());
         beatmapOpt.ifPresent(beatmap -> {
             GreenLineSnapper.execute(beatmap, globalCliParameters);
             BeatmapExporter.export(beatmap, globalCliParameters);

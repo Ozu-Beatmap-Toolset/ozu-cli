@@ -1,1 +1,2 @@
-src/cache/audio.*
+/cache/audio.wav
+/out/artifacts/ozu_cli_jar/java/cache/audio.wav

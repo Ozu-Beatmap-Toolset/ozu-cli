@@ -9,6 +9,7 @@ import osu.beatmap.operations.TimingPointOperations;
 import osu.beatmap.serialization.BeatmapParser;
 import tools.beatmap_exporter.BeatmapExporter;
 import tools.beatmap_speed_changer.BeatmapSpeedChanger;
+import util.file.IOFile;
 
 import java.io.File;
 import java.util.Arrays;
@@ -31,7 +32,7 @@ public class BpmCommand {
         final double bpmParameter = Double.parseDouble(unparsedBpmArgument.get(0));
 
         final File beatmapFile = globalParameters.getBeatmapFile();
-        final Optional<Beatmap> beatmapOpt = BeatmapParser.decode(beatmapFile);
+        final Optional<Beatmap> beatmapOpt = BeatmapParser.decode(IOFile.fileToInputStream(beatmapFile).get());
         beatmapOpt.ifPresent(beatmap -> {
             final File beatmapFolder = beatmapFile.getParentFile();
             final String[] ls = beatmapFolder.list();
