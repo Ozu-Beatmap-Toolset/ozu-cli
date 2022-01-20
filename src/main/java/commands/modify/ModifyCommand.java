@@ -28,7 +28,7 @@ public class ModifyCommand {
     }
 
     public static String smallDescription() {
-        return "Tool to modify elements of a beatmap";
+        return "Modify elements of a beatmap";
     }
 
     public static String detailedDescription() {

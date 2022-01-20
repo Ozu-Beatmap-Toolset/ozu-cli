@@ -28,7 +28,7 @@ public class AnalyseCommand {
     }
 
     public static String smallDescription() {
-        return "Reports information about a beatmap in the console";
+        return "Exctract information from a beatmap";
     }
 
     public static String detailedDescription() {

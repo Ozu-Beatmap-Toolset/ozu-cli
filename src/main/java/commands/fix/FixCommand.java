@@ -32,7 +32,7 @@ public class FixCommand {
     }
 
     public static String smallDescription() {
-        return "Looks for specific errors in a beatmap and fixes them automatically";
+        return "Fix specific mistakes in a beatmap";
     }
 
     public static String detailedDescription() {
