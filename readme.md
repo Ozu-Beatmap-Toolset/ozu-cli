@@ -2,7 +2,7 @@
 
 A cli app to help with beatmap creation.
 
-### List of available commands
+# List of available commands
 
 ### Help
 ```ozu help [optional: command-name]```
