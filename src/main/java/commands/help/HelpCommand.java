@@ -15,7 +15,8 @@ public class HelpCommand {
             "\\____/ /___/\\__,_/    Usage: ozu [command] [options...] [beatmap-folder-location]\n";
 
     public static final String INTRO_VERSION_INFO = "\nWarning: This program is in active development. Use it at your own risk!\n" +
-            "         If you think you have found a bug, please report it at my email address: lebel.johnw@gmail.com\n";
+            "         If you think you found a bug, you can check on the git repo if there are no similare issues: https://github.com/Ozu-Beatmap-Toolset/ozu-cli/issues\n" +
+            "         If the issue you found is not already present, you can create one.";
 
     public static final String COMMAND_LIST = "\nAvailable Commands:\n\n" +
             "  fix                 " + FixCommand.smallDescription() + "\n" +
