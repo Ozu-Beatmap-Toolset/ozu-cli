@@ -1,13 +1,13 @@
 package tools.bpm_offset_finder;
 
 import org.jtransforms.fft.FloatFFT_1D;
+import os.FfmpegAutoInstaller;
 import osu.beatmap.Beatmap;
 import tools.audio_file_converter.AudioFileConverter;
 import tools.audio_file_converter.AudioFileType;
 import tools.wav_file_untangler.ChannelType;
 import tools.wav_file_untangler.WavFileUntangler;
 import util.data_structure.tupple.Tuple2;
-import util.file.IOFile;
 
 import javax.sound.sampled.AudioFormat;
 import javax.sound.sampled.AudioInputStream;
@@ -21,7 +21,10 @@ public class BPMOFinder {
     public static void execute(final Beatmap beatmap, final File mp3File) throws Exception {
         System.out.print("Cleaning up filesystem... ");
         new File("cache\\audio.wav").delete();
+        new File("cache").mkdir();
         System.out.println("Done.");
+
+        FfmpegAutoInstaller.applyStrictInstallationProcedure();
 
         System.out.print("Converting \"" + mp3File.getName() + "\" into .wav format... ");
         final File wavFile = AudioFileConverter.convert(mp3File, new File("cache"), AudioFileType.WAVE);
@@ -41,7 +44,7 @@ public class BPMOFinder {
         bpmAndOffsetOpt.ifPresent(bpmAndOffset -> {
             final double beatLength = 60000/bpmAndOffset.value1;
             final int offset = (int)(bpmAndOffset.value2*beatLength/(Math.PI*2));
-            System.out.println("\nBpm is: " + bpmAndOffset.value1);
+            System.out.println("\nCalculated " + bpmAndOffset.value1 + " bpm for \"" + beatmap.metadata.title + "\"\n");
 
             beatmap.timingPoints.redLineData.get(0).beatLength = beatLength;
             beatmap.timingPoints.redLineData.get(0).time = offset;

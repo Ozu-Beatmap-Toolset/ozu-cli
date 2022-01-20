@@ -1,22 +1,17 @@
 package tools.audio_file_converter;
 
-import java.io.IOException;
+
+import os.win.powershell.Powershell;
 
 public class FfmpegCliAccess {
 
+    public static boolean notInstalled() {
+        final String[] ffmpegCommandArgs = {"ffmpeg", "-version"};
+        return Powershell.call(ffmpegCommandArgs) != 0;
+    }
+
     public static void call(String... args) {
-        final String[] ffmpegCommandArgs = {"powershell.exe", "ffmpeg -i " + String.join(" ", args)};
-        try {
-            final ProcessBuilder builder = new ProcessBuilder(ffmpegCommandArgs);
-            final Process p = builder.start();
-            p.getInputStream().close();
-            p.getErrorStream().close();
-            p.getOutputStream().close();
-            p.waitFor();
-            p.destroy();
-        }
-        catch (IOException | InterruptedException ioException) {
-            ioException.printStackTrace();
-        }
+        final String[] ffmpegCommandArgs = {"ffmpeg", "-i", String.join(" ", args)};
+        Powershell.call(ffmpegCommandArgs);
     }
 }

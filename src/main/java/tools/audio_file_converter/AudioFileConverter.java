@@ -1,5 +1,7 @@
 package tools.audio_file_converter;
 
+import os.FfmpegAutoInstaller;
+
 import java.io.File;
 
 public class AudioFileConverter {
