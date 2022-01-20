@@ -51,7 +51,7 @@ public class FfmpegAutoInstaller {
         if(FfmpegCliAccess.notInstalled()) {
             if(FfmpegAutoInstaller.askForAutomaticInstallation()) {
                 System.out.println("Some additional software might be downloaded to help with the installation process.");
-                System.out.println("If there are errors during the installation, try running the app with administrator privileges.\n");
+                System.out.println("If there are errors during the installation, try running the shell with administrator privileges.\n");
                 System.out.println("Installing ffmpeg...");
                 TimeUnit.SECONDS.sleep(4);
                 exitValue = FfmpegAutoInstaller.install();

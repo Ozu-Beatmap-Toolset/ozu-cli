@@ -4,6 +4,7 @@ import commands.CliArgumentFinder;
 import commands.CommandHandler;
 import global_parameters.GlobalCliParameters;
 import global_parameters.GlobalParametersBuilder;
+import os.FfmpegAutoInstaller;
 import osu.beatmap.Beatmap;
 import osu.beatmap.operations.TimingPointOperations;
 import osu.beatmap.serialization.BeatmapParser;
@@ -23,6 +24,13 @@ public class BpmCommand {
         if(args.length < 4) {
             CommandHandler.userEnteredInvalidCommand(args);
             return;
+        }
+
+        try {
+            FfmpegAutoInstaller.applyStrictInstallationProcedure();
+        }
+        catch (InterruptedException e) {
+            e.printStackTrace();
         }
 
         final GlobalCliParameters globalParameters = GlobalParametersBuilder.build(args);
