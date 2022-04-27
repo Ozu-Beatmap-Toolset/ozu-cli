@@ -6,7 +6,7 @@
 
 ### Fixer
 ```ozu fix [fixer] [beatmap-folder-location]```  
-- ```ozu fix bpm [beatmap-folder-location]``` finds the best matching bpm and offset using an heuristic (Turns out that finding bpm and offset isn't solved yet, this tool uses an heuristic that may not work really well depending on the song)  
+- ```ozu fix bpm [beatmap-folder-location]``` finds the best matching bpm and offset of a song (it turns out that finding bpm and offset isn't solved yet, this tool uses an heuristic that may not work really well depending on the song)  
 - ```ozu fix green-line-snap [beatmap-folder-location]``` snaps green lines to specified time divisions  
 - ```ozu fix note-snap [beatmap-folder-location]``` snaps circles, sliders and spinners to specified time divisions  
 
